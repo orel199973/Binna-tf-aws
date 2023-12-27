@@ -434,15 +434,26 @@ route53_record_cpanel = {
 # # ------------------------
 wafv2_acl = {
   waf = {
-    scope = "REGIONAL"
+    scope         = "CLOUDFRONT"
+    country_codes = ["IL"]
     default_action = [{
+    }]
+    rule = [{
+      name     = "AllowOnlyIsrael"
+      priority = 1
+      action = [{
+      }]
+      visibility_config = [{
+        cloudwatch_metrics_enabled = false
+        metric_name                = "web-acl"
+        sampled_requests_enabled   = false
+      }]
     }]
     visibility_config = [{
       cloudwatch_metrics_enabled = false
-      metric_name                = "friendly-rule-metric-name"
+      metric_name                = "web-acl"
       sampled_requests_enabled   = false
     }]
-
   }
 }
 

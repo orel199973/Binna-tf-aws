@@ -16,7 +16,7 @@ variable "description" {
 }
 
 
-variable "rules" {
+variable "rule" {
   type    = any
   default = {}
 }
@@ -44,6 +44,16 @@ variable "managed_rule_group_statement" {
 variable "statement" {
   type    = any
   default = {}
+}
+
+variable "geo_match_statement" {
+  type    = any
+  default = {}
+}
+
+variable "country_codes" {
+  type    = any
+  default = []
 }
 
 variable "excluded_rule" {

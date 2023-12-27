@@ -369,16 +369,16 @@ module "route53_record_cpanel" {
 #   is_ipv6_enabled        = lookup(each.value, "is_ipv6_enabled", null)
 #   default_root_object    = lookup(each.value, "default_root_object", null)
 #   geo_restriction        = lookup(each.value, "geo_restriction", {})
-#   default_cache_behavior = lookup(each.value, "default_cache_behavior", {})
+#   # default_cache_behavior = lookup(each.value, "default_cache_behavior", {})
 #   forwarded_values       = lookup(each.value, "forwarded_values", {})
 #   custom_origin_config   = lookup(each.value, "custom_origin_config", {})
-
 #   # restrictions           = lookup(each.value, "restrictions", {})
 #   # cache_policy_id = aws_cloudfront_cache_policy.example.id
+#     web_acl_id = module.wafv2_acl["waf"].id
 #   target_origin_id = lookup(each.value, "target_origin_id", null)
-#   # default_cache_behavior = [{
+#   default_cache_behavior = [{
 #   # forwarded_values = lookup(each.value, "forwarded_values", {})
-#   # }]
+#   }]
 #   origin = [{
 #     domain_name = module.alb["alb"].dns_name
 #     origin_id   = lookup(each.value, "origin_id", null)
@@ -407,6 +407,13 @@ module "wafv2_acl" {
   scope             = lookup(each.value, "scope", null)
   default_action    = lookup(each.value, "default_action", {})
   visibility_config = lookup(each.value, "visibility_config", {})
+  rule              = lookup(each.value, "rule", {})
+  action            = lookup(each.value, "action", {})
+  statement         = lookup(each.value, "statement", {})
+  country_codes     = lookup(each.value, "country_codes", [])
+  providers = {
+    aws = aws.us_east_1
+  }
 }
 
 
