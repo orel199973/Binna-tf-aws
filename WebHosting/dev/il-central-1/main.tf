@@ -264,6 +264,7 @@ module "alb_listener_whm" {
     target_group_arn = module.target_group["tg-whm"].arn
     type             = lookup(each.value, "type", null)
   }]
+  depends_on = [module.target_group]
 }
 
 
