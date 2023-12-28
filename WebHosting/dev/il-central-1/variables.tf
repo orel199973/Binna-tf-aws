@@ -119,14 +119,14 @@ variable "route53_record_cpanel" {
   type = any
 }
 
-# variable "cloudfront_distribution" {
-#   type = any
-# }
+variable "cloudfront_distribution" {
+  type = any
+}
 
 variable "wafv2_acl" {
   type = any
 }
 
-variable "wafv2_ip_set" {
-  type = any
-}
+# variable "wafv2_ip_set" {
+#   type = any
+# }

@@ -57,27 +57,26 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
       max_ttl                  = lookup(default_cache_behavior.value, "max_ttl", null)
       cache_policy_id          = lookup(default_cache_behavior.value, "cache_policy_id", var.cache_policy_id)
       origin_request_policy_id = lookup(default_cache_behavior.value, "origin_request_policy_id", null)
-      #     forwarded_values {
-      #       query_string = false
-      #       cookies {
-      #         forward = "none"
+          forwarded_values {
+            query_string = false
+            cookies {
+              forward = "none"
+            }
+          }
+     
+      # dynamic "forwarded_values" {
+      #   for_each = var.forwarded_values
+      #   content {
+      #     query_string = lookup(forwarded_values.value, "query_string", null)
+      #     dynamic "cookies" {
+      #       for_each = var.cookies
+      #       content {
+      #         forward = lookup(cookies.value, "forward", null)
       #       }
+
       #     }
       #   }
       # }
-      dynamic "forwarded_values" {
-        for_each = var.forwarded_values
-        content {
-          query_string = lookup(forwarded_values.value, "query_string", null)
-          dynamic "cookies" {
-            for_each = var.cookies
-            content {
-              forward = lookup(cookies.value, "forward", null)
-            }
-
-          }
-        }
-      }
     }
   }
   dynamic "restrictions" {
@@ -85,7 +84,7 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
     content {
       geo_restriction {
         restriction_type = lookup(restrictions.value, "restriction_type", "whitelist")
-        locations        = lookup(restrictions.value, "locations", null)
+        locations        = lookup(restrictions.value, "locations", ["IL"])
       }
     }
   }
@@ -333,3 +332,11 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
 #   }
 
 # }
+
+  terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+    }
+  }
+}

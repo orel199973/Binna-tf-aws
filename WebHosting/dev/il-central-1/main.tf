@@ -361,40 +361,38 @@ module "route53_record_cpanel" {
 
 # # # Cloudfront Distribution
 # # # ------------------------
-# module "cloudfront_distribution" {
-#   source                 = "../../../modules/cloudfront-distribution"
-#   for_each               = var.cloudfront_distribution
-#   name                   = "${each.key}-${local.prefix}"
-#   enabled                = lookup(each.value, "enabled", null)
-#   is_ipv6_enabled        = lookup(each.value, "is_ipv6_enabled", null)
-#   default_root_object    = lookup(each.value, "default_root_object", null)
-#   geo_restriction        = lookup(each.value, "geo_restriction", {})
-#   # default_cache_behavior = lookup(each.value, "default_cache_behavior", {})
-#   forwarded_values       = lookup(each.value, "forwarded_values", {})
-#   custom_origin_config   = lookup(each.value, "custom_origin_config", {})
-#   # restrictions           = lookup(each.value, "restrictions", {})
-#   # cache_policy_id = aws_cloudfront_cache_policy.example.id
-#     web_acl_id = module.wafv2_acl["waf"].id
-#   target_origin_id = lookup(each.value, "target_origin_id", null)
-#   default_cache_behavior = [{
-#   # forwarded_values = lookup(each.value, "forwarded_values", {})
-#   }]
-#   origin = [{
-#     domain_name = module.alb["alb"].dns_name
-#     origin_id   = lookup(each.value, "origin_id", null)
-#   }]
-#   viewer_certificate = [{
-#     ssl_support_method  = lookup(each.value, "ssl_support_method", "sni-only")
-#     acm_certificate_arn = data.aws_acm_certificate.dev_vitiligo_stop.arn
-#   }]
-#   restrictions = [{
-#     geo_restriction = [{
-#       restriction_type = lookup(each.value, "restriction_type", null)
-#       locations        = lookup(each.value, "locations", null)
-#     }]
-#   }]
-#   depends_on = [module.alb]
-# }
+module "cloudfront_distribution" {
+  source                 = "../../../modules/cloudfront-distribution"
+  for_each               = var.cloudfront_distribution
+  name                   = "${each.key}-${local.prefix}"
+  enabled                = lookup(each.value, "enabled", null)
+  price_class            = lookup(each.value, "price_class", null)
+  is_ipv6_enabled        = lookup(each.value, "is_ipv6_enabled", null)
+  default_root_object    = lookup(each.value, "default_root_object", null)
+  geo_restriction        = lookup(each.value, "geo_restriction", {})
+  default_cache_behavior = lookup(each.value, "default_cache_behavior", {})
+  forwarded_values       = lookup(each.value, "forwarded_values", {})
+  custom_origin_config   = lookup(each.value, "custom_origin_config", {})
+  restrictions           = lookup(each.value, "restrictions", {})
+  web_acl_id             = module.wafv2_acl["waf"].arn
+  target_origin_id       = lookup(each.value, "target_origin_id", null)
+  # default_cache_behavior = [{
+  # forwarded_values = lookup(each.value, "forwarded_values", {})
+  # }]
+  origin = [{
+    domain_name = module.alb["alb"].dns_name
+    origin_id   = lookup(each.value, "origin_id", null)
+  }]
+  viewer_certificate = [{
+    cloudfront_default_certificate = lookup(each.value, "cloudfront_default_certificate", true)
+    # ssl_support_method  = lookup(each.value, "ssl_support_method", "sni-only")
+    # acm_certificate_arn = data.aws_acm_certificate.dev_vitiligo_stop.arn
+  }]
+  depends_on = [module.alb]
+  providers = {
+    aws = aws.us_east_1
+  }
+}
 
 
 
@@ -419,11 +417,11 @@ module "wafv2_acl" {
 
 # # WAF IP Set
 # # -----------------
-module "wafv2_ip_set" {
-  source             = "../../../modules/wafv2-ip-set"
-  for_each           = var.wafv2_ip_set
-  name               = each.key
-  scope              = lookup(each.value, "scope", null)
-  ip_address_version = lookup(each.value, "ip_address_version", null)
-  addresses          = lookup(each.value, "addresses", null)
-}
+# module "wafv2_ip_set" {
+#   source             = "../../../modules/wafv2-ip-set"
+#   for_each           = var.wafv2_ip_set
+#   name               = each.key
+#   scope              = lookup(each.value, "scope", null)
+#   ip_address_version = lookup(each.value, "ip_address_version", null)
+#   addresses          = lookup(each.value, "addresses", null)
+# }
