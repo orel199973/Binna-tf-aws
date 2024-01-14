@@ -349,6 +349,8 @@ vpc_endpoint = {
 
 # # Route53 Zone
 # # -----------------
+dns_zone_prod_name = "vitiligo-stop.com"
+dns_zone_dev_name  = "*.dev.vitiligo-stop.com"
 route53_zone = {
   vitiligo-stop = {
   }
@@ -361,7 +363,7 @@ route53_zone_dev = {
 
 # # Route53 Record
 # # -----------------
-route53_record_cert_approval = {
+route53_record_zone_approval = {
   cert-approval = {
     allow_overwrite = true
     name            = "dev.vitiligo-stop.com"
@@ -378,7 +380,12 @@ route53_record_cpanel = {
     }]
   }
 }
-
+route53_record_cert_approval = {
+  cert-vitiligo-stop = {
+    type = "CNAME"
+    ttl  = 60
+  }
+}
 
 
 # # Cloudfront Distribution

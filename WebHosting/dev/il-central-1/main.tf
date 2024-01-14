@@ -204,10 +204,32 @@ module "private_association_route_table" {
 
 # # Certificate Manager
 # # --------------------
-data "aws_acm_certificate" "dev_vitiligo_stop" {
-  domain = var.acm_domain
+module "acm_certificate_dev_israel" {
+  source      = "../../../modules/aws-acm-certificate"
+  domain_name = var.dns_zone_dev_name
+  validation_method = "DNS"
+  providers = {
+    aws = aws.default
+  }
 }
 
+module "acm_certificate_dev_us_east1" {
+  source      = "../../../modules/aws-acm-certificate"
+  domain_name = var.dns_zone_dev_name
+  validation_method = "DNS"
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+# data "aws_acm_certificate" "vitiligo_stop_dev_israel" {
+#   domain   = var.acm_domain
+#   provider = aws.default
+# }
+# data "aws_acm_certificate" "vitiligo_stop_dev_us_east1" {
+#   domain   = var.acm_domain
+#   provider = aws.us_east_1
+# }
 
 # # ALB
 # # -----------------
@@ -245,11 +267,13 @@ module "alb_listener_https" {
   load_balancer_arn = module.alb["alb"].arn
   protocol          = lookup(each.value, "protocol", null)
   port              = lookup(each.value, "port", null)
-  certificate_arn   = data.aws_acm_certificate.dev_vitiligo_stop.arn
+  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+  certificate_arn = module.acm_certificate_dev_israel.arn
   default_action = [{
     target_group_arn = module.target_group["tg-http"].arn
     type             = lookup(each.value, "type", null)
   }]
+  depends_on = [module.target_group, module.route53_record_cert_approval]
 }
 
 module "alb_listener_whm" {
@@ -259,12 +283,13 @@ module "alb_listener_whm" {
   load_balancer_arn = module.alb["alb"].arn
   protocol          = lookup(each.value, "protocol", null)
   port              = lookup(each.value, "port", null)
-  certificate_arn   = data.aws_acm_certificate.dev_vitiligo_stop.arn
+  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+  certificate_arn = module.acm_certificate_dev_israel.arn
   default_action = [{
     target_group_arn = module.target_group["tg-whm"].arn
     type             = lookup(each.value, "type", null)
   }]
-  depends_on = [module.target_group]
+  depends_on = [module.target_group, module.route53_record_cert_approval]
 }
 
 
@@ -327,12 +352,16 @@ module "route53_zone_dev" {
 
 # # # Route53 Records
 # # # -----------------
-# For ACM Cert Approval
-module "route53_record_cert_approval" {
-  source          = "../../../modules/route53-record"
-  for_each        = var.route53_record_cert_approval
-  name            = lookup(each.value, "name", null)
+# data "aws_route53_zone" "route53_zone_prod" {
+#   name = var.dns_zone_prod_name
+# }
+# For Zone Approval
+module "route53_record_zone_approval" {
+  source   = "../../../modules/route53-record"
+  for_each = var.route53_record_zone_approval
+  name     = lookup(each.value, "name", null)
   zone_id         = module.route53_zone["vitiligo-stop"].zone_id
+  # zone_id         = data.aws_route53_zone.route53_zone_prod.zone_id
   type            = lookup(each.value, "type", null)
   ttl             = lookup(each.value, "ttl", null)
   allow_overwrite = lookup(each.value, "allow_overwrite", null)
@@ -349,7 +378,8 @@ module "route53_record_cpanel" {
   source   = "../../../modules/route53-record"
   for_each = var.route53_record_cpanel
   name     = lookup(each.value, "name", null)
-  zone_id  = module.route53_zone["vitiligo-stop"].zone_id
+  zone_id  = module.route53_zone_dev["vitiligo-stop"].zone_id
+  # zone_id = data.aws_route53_zone.route53_zone_prod.zone_id
   type     = lookup(each.value, "type", null)
   alias = [{
     name                   = module.alb["alb"].dns_name
@@ -358,6 +388,26 @@ module "route53_record_cpanel" {
   }]
   depends_on = [module.route53_zone_dev]
 }
+
+# For Cert TLS Approval
+locals {
+  validation_options = [for dvo in module.acm_certificate_dev_israel.acm_certificate_domain_validation_options : {
+    name  = dvo.resource_record_name
+    value = dvo.resource_record_value
+  }]
+}
+
+module "route53_record_cert_approval" {
+  source   = "../../../modules/route53-record"
+  for_each = var.route53_record_cert_approval
+  name     = local.validation_options[0].name
+  records  = [local.validation_options[0].value]
+  zone_id  = module.route53_zone_dev["vitiligo-stop"].zone_id
+  type     = lookup(each.value, "type", null)
+  ttl      = lookup(each.value, "ttl", null)
+  depends_on = [module.route53_zone_dev]
+}
+
 
 # # # Cloudfront Distribution
 # # # ------------------------
@@ -376,19 +426,17 @@ module "cloudfront_distribution" {
   restrictions           = lookup(each.value, "restrictions", {})
   web_acl_id             = module.wafv2_acl["waf"].arn
   target_origin_id       = lookup(each.value, "target_origin_id", null)
-  # default_cache_behavior = [{
-  # forwarded_values = lookup(each.value, "forwarded_values", {})
-  # }]
   origin = [{
     domain_name = module.alb["alb"].dns_name
     origin_id   = lookup(each.value, "origin_id", null)
   }]
   viewer_certificate = [{
-    cloudfront_default_certificate = lookup(each.value, "cloudfront_default_certificate", true)
-    # ssl_support_method  = lookup(each.value, "ssl_support_method", "sni-only")
-    # acm_certificate_arn = data.aws_acm_certificate.dev_vitiligo_stop.arn
+    # cloudfront_default_certificate = lookup(each.value, "cloudfront_default_certificate", true)
+    ssl_support_method = lookup(each.value, "ssl_support_method", "sni-only")
+    acm_certificate_arn = module.acm_certificate_dev_us_east1.arn
+    # acm_certificate_arn = data.aws_acm_certificate.binna_dev_us_east1.arn
   }]
-  depends_on = [module.alb]
+  depends_on = [module.alb, module.acm_certificate_dev_us_east1]
   providers = {
     aws = aws.us_east_1
   }

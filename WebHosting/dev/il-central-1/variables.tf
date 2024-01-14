@@ -111,13 +111,29 @@ variable "route53_zone_dev" {
   type = any
 }
 
-variable "route53_record_cert_approval" {
+variable "dns_zone_prod_name" {
+  type = any
+}
+
+variable "dns_zone_dev_name" {
+  type = any
+}
+
+variable "route53_record_zone_approval" {
   type = any
 }
 
 variable "route53_record_cpanel" {
   type = any
 }
+
+variable "route53_record_cert_approval" {
+  type = any
+}
+
+# variable "route53_record_cert_approval_us_east_1" {
+#   type = any
+# }
 
 variable "cloudfront_distribution" {
   type = any
