@@ -21,3 +21,11 @@ resource "aws_acm_certificate" "acm" {
     },
   )
 }
+
+  terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+    }
+  }
+}
