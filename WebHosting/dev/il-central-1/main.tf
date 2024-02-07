@@ -382,8 +382,8 @@ module "route53_record_cpanel" {
   # zone_id = data.aws_route53_zone.route53_zone_prod.zone_id
   type     = lookup(each.value, "type", null)
   alias = [{
-    name                   = module.alb["alb"].dns_name
-    zone_id                = module.alb["alb"].zone_id
+    name                   = module.cloudfront_distribution["cloudfront"].domain_name
+    zone_id                = module.cloudfront_distribution["cloudfront"].hosted_zone_id
     evaluate_target_health = lookup(each.value, "evaluate_target_health", true)
   }]
   depends_on = [module.route53_zone_dev]
@@ -426,6 +426,7 @@ module "cloudfront_distribution" {
   restrictions           = lookup(each.value, "restrictions", {})
   web_acl_id             = module.wafv2_acl["waf"].arn
   target_origin_id       = lookup(each.value, "target_origin_id", null)
+  aliases                = lookup(each.value, "aliases", null)
   origin = [{
     domain_name = module.alb["alb"].dns_name
     origin_id   = lookup(each.value, "origin_id", null)

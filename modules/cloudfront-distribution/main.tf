@@ -57,12 +57,12 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
       max_ttl                  = lookup(default_cache_behavior.value, "max_ttl", null)
       cache_policy_id          = lookup(default_cache_behavior.value, "cache_policy_id", var.cache_policy_id)
       origin_request_policy_id = lookup(default_cache_behavior.value, "origin_request_policy_id", null)
-          forwarded_values {
-            query_string = false
-            cookies {
-              forward = "none"
-            }
-          }
+          # forwarded_values {
+          #   query_string = false
+          #   cookies {
+          #     forward = "none"
+          #   }
+          # }
      
       # dynamic "forwarded_values" {
       #   for_each = var.forwarded_values

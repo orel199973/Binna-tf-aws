@@ -376,7 +376,7 @@ route53_record_cpanel = {
     name = "cpanel.dev.vitiligo-stop.com"
     type = "A"
     alias = [{
-      evaluate_target_health = true
+      evaluate_target_health = false
     }]
   }
 }
@@ -395,6 +395,7 @@ cloudfront_distribution = {
     enabled             = true
     is_ipv6_enabled     = true
     default_root_object = "index.html"
+    aliases             = ["cpanel.dev.vitiligo-stop.com"]
     origin_id           = "ALB"
     origin = [{
     }]
@@ -414,12 +415,14 @@ cloudfront_distribution = {
       max_ttl                = 86400
       allowed_methods        = ["GET", "HEAD"]
       cached_methods         = ["GET", "HEAD"]
-      forwarded_values = [{
-        query_string = false
-        forward      = "none"
-        cookies = [{
-        }]
-      }]
+      cache_policy_id         = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # 
+    #   forwarded_values = [{
+    #     query_string = false
+    #     forward      = "none"
+    #     cookies = [{
+    #     }]
+      # }]
     }]
     viewer_certificate = [{
       ssl_support_method       = "sni-only"
