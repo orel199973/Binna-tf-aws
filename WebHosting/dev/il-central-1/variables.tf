@@ -146,3 +146,51 @@ variable "wafv2_acl" {
 # variable "wafv2_ip_set" {
 #   type = any
 # }
+
+variable "target_group_ihorse" {
+  type = any
+}
+
+variable "alb_ihorse" {
+  type = any
+}
+
+variable "dns_zone_prod_name_ihorse" {
+  type = any
+}
+
+variable "dns_zone_dev_ihorse_name" {
+  type = any
+}
+
+variable "alb_listener_https_ihorse" {
+  type = any
+}
+
+variable "alb_listener_http_ihorse" {
+  type = any
+}
+
+variable "alb_listener_whm_ihorse" {
+  type = any
+}
+
+variable "route53_record_zone_approval_ihorse" {
+  type = any
+}
+
+variable "route53_record_cpanel_ihorse" {
+  type = any
+}
+
+variable "route53_record_cert_approval_ihorse" {
+  type = any
+}
+
+variable "route53_zone_dev_ihorse" {
+  type = any
+}
+
+variable "cloudfront_distribution_ihorse" {
+  type = any
+}
