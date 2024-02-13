@@ -153,7 +153,7 @@ module "autoscaling_group" {
   max_size            = lookup(each.value, "max_size", null)
   min_size            = lookup(each.value, "min_size", null)
   vpc_zone_identifier = [module.subnet["private-subnet-1a"].id]
-  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_voting["voting-tg-whm"].arn]
+  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group["tg-2083"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_voting["voting-tg-whm"].arn]
   launch_template = [{
     id      = module.launch_template["cPanel"].id
     version = lookup(each.value, "version", null)
@@ -364,6 +364,22 @@ module "alb_listener_whm" {
   certificate_arn = module.acm_certificate_dev_israel.arn
   default_action = [{
     target_group_arn = module.target_group["tg-whm"].arn
+    type             = lookup(each.value, "type", null)
+  }]
+  depends_on = [module.target_group, module.route53_record_cert_approval]
+}
+
+module "alb_listener_2083" {
+  source            = "../../../modules/aws-lb-listener"
+  for_each          = var.alb_listener_2083
+  name              = each.key
+  load_balancer_arn = module.alb["alb"].arn
+  protocol          = lookup(each.value, "protocol", null)
+  port              = lookup(each.value, "port", null)
+  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+  certificate_arn = module.acm_certificate_dev_israel.arn
+  default_action = [{
+    target_group_arn = module.target_group["tg-2083"].arn
     type             = lookup(each.value, "type", null)
   }]
   depends_on = [module.target_group, module.route53_record_cert_approval]

@@ -361,6 +361,11 @@ target_group = {
     port        = 2087
     protocol    = "HTTPS"
   }
+  tg-2083 = {
+    target_type = "instance"
+    port        = 2083
+    protocol    = "HTTPS"
+  }
 }
 
 target_group_ihorse = {
@@ -458,6 +463,15 @@ alb_listener_whm = {
   listener-whm = {
     protocol   = "HTTPS"
     port       = "2087"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+alb_listener_2083 = {
+  listener-2083 = {
+    protocol   = "HTTPS"
+    port       = "2083"
     ssl_policy = "ELBSecurityPolicy-2016-08"
     type       = "forward"
   }
