@@ -190,6 +190,96 @@ security_group_alb = {
       protocol    = "-1"
       cidr_blocks = ["0.0.0.0/0"]
     }]
+  },
+  security-group-alb-ihorse = {
+    ingress = [{
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2082
+        to_port     = 2082
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+      ,
+      {
+        from_port   = 2083
+        to_port     = 2083
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2086
+        to_port     = 2086
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2087
+        to_port     = 2087
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }]
+    egress = [{
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }]
+  },
+  security-group-alb-voting = {
+    ingress = [{
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2082
+        to_port     = 2082
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+      ,
+      {
+        from_port   = 2083
+        to_port     = 2083
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2086
+        to_port     = 2086
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2087
+        to_port     = 2087
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }]
+    egress = [{
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }]
   }
 }
 
@@ -253,7 +343,31 @@ target_group = {
   }
 }
 
+target_group_ihorse = {
+  ihorse-tg-http = {
+    target_type = "instance"
+    port        = 80
+    protocol    = "HTTP"
+  }
+  ihorse-tg-whm = {
+    target_type = "instance"
+    port        = 2087
+    protocol    = "HTTPS"
+  }
+}
 
+target_group_voting = {
+  voting-tg-http = {
+    target_type = "instance"
+    port        = 80
+    protocol    = "HTTP"
+  }
+  voting-tg-whm = {
+    target_type = "instance"
+    port        = 2087
+    protocol    = "HTTPS"
+  }
+}
 # # Certificate Manager
 # # --------------------
 acm_domain = "*.dev.vitiligo-stop.com"
@@ -270,7 +384,23 @@ alb = {
   }
 }
 
+alb_ihorse = {
+  alb-ihorse = {
+    internal                   = false
+    load_balancer_type         = "application"
+    enable_deletion_protection = false
 
+  }
+}
+
+alb_voting = {
+  alb-voting = {
+    internal                   = false
+    load_balancer_type         = "application"
+    enable_deletion_protection = false
+
+  }
+}
 # ALB Listener
 # -----------------
 alb_listener_http = {
@@ -291,6 +421,62 @@ alb_listener_https = {
 }
 
 alb_listener_whm = {
+  listener-whm = {
+    protocol   = "HTTPS"
+    port       = "2087"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+# ALB Listener Ihorse
+# ----------------------
+alb_listener_http_ihorse = {
+  listener-http = {
+    protocol = "HTTP"
+    port     = "80"
+    type     = "forward"
+  }
+}
+
+alb_listener_https_ihorse = {
+  listener-https = {
+    protocol   = "HTTPS"
+    port       = "443"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+alb_listener_whm_ihorse = {
+  listener-whm = {
+    protocol   = "HTTPS"
+    port       = "2087"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+# ALB Listener Voting
+# ----------------------
+alb_listener_http_voting = {
+  listener-http = {
+    protocol = "HTTP"
+    port     = "80"
+    type     = "forward"
+  }
+}
+
+alb_listener_https_voting = {
+  listener-https = {
+    protocol   = "HTTPS"
+    port       = "443"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+alb_listener_whm_voting = {
   listener-whm = {
     protocol   = "HTTPS"
     port       = "2087"
@@ -349,8 +535,11 @@ vpc_endpoint = {
 
 # # Route53 Zone
 # # -----------------
-dns_zone_prod_name = "vitiligo-stop.com"
-dns_zone_dev_name  = "*.dev.vitiligo-stop.com"
+dns_zone_prod_name        = "vitiligo-stop.com"
+dns_zone_dev_name         = "*.dev.vitiligo-stop.com"
+dns_zone_prod_name_ihorse = "ihorse.co.il"
+dns_zone_dev_ihorse_name  = "*.dev.ihorse.co.il"
+dns_zone_prod_voting_name = "*.voting.co.il"
 route53_zone = {
   vitiligo-stop = {
   }
@@ -359,6 +548,16 @@ route53_zone_dev = {
   vitiligo-stop = {
   }
 }
+
+route53_zone_dev_ihorse = {
+  ihorse = {
+  }
+}
+
+# route53_zone_dev_voting = {
+#   voting = {
+#   }
+# }
 
 
 # # Route53 Record
@@ -373,7 +572,7 @@ route53_record_zone_approval = {
 }
 route53_record_cpanel = {
   cpanel-a = {
-    name = "cpanel.dev.vitiligo-stop.com"
+    name = "web.dev.vitiligo-stop.com"
     type = "A"
     alias = [{
       evaluate_target_health = false
@@ -387,6 +586,31 @@ route53_record_cert_approval = {
   }
 }
 
+# # Route53 Record Ihorse
+# # ------------------------------
+route53_record_zone_approval_ihorse = {
+  cert-approval = {
+    allow_overwrite = true
+    name            = "dev.ihorse.co.il"
+    type            = "NS"
+    ttl             = 172800
+  }
+}
+route53_record_cpanel_ihorse = {
+  cpanel-a = {
+    name = "web.dev.ihorse.co.il"
+    type = "A"
+    alias = [{
+      evaluate_target_health = true
+    }]
+  }
+}
+route53_record_cert_approval_ihorse = {
+  cert-vitiligo-stop = {
+    type = "CNAME"
+    ttl  = 60
+  }
+}
 
 # # Cloudfront Distribution
 # # # ------------------------
@@ -395,7 +619,7 @@ cloudfront_distribution = {
     enabled             = true
     is_ipv6_enabled     = true
     default_root_object = "index.html"
-    aliases             = ["cpanel.dev.vitiligo-stop.com"]
+    aliases             = ["*.dev.vitiligo-stop.com"]
     origin_id           = "ALB"
     origin = [{
     }]
@@ -408,20 +632,115 @@ cloudfront_distribution = {
       origin_ssl_protocols   = ["TLSv1.2"]
     }]
     default_cache_behavior = [{
-      target_origin_id       = "ALB"
-      viewer_protocol_policy = "redirect-to-https"
-      min_ttl                = 0
-      default_ttl            = 3600
-      max_ttl                = 86400
-      allowed_methods        = ["GET", "HEAD"]
-      cached_methods         = ["GET", "HEAD"]
-      cache_policy_id         = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
-      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # 
-    #   forwarded_values = [{
-    #     query_string = false
-    #     forward      = "none"
-    #     cookies = [{
-    #     }]
+      target_origin_id         = "ALB"
+      viewer_protocol_policy   = "redirect-to-https"
+      min_ttl                  = 0
+      default_ttl              = 0
+      max_ttl                  = 0
+      allowed_methods          = ["GET", "HEAD"]
+      cached_methods           = ["GET", "HEAD"]
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3"
+      #   forwarded_values = [{
+      #     query_string = false
+      #     forward      = "none"
+      #     cookies = [{
+      #     }]
+      # }]
+    }]
+    viewer_certificate = [{
+      ssl_support_method       = "sni-only"
+      minimum_protocol_version = "TLSv1.2_2019"
+    }]
+    restrictions = [{
+      geo_restriction = [{
+        restriction_type = "whitelist"
+        locations        = ["IL"]
+      }]
+    }]
+  }
+}
+
+cloudfront_distribution_ihorse = {
+  cloudfront-ihorse = {
+    enabled             = true
+    is_ipv6_enabled     = true
+    default_root_object = "index.html"
+    aliases             = ["*.dev.ihorse.co.il"]
+    origin_id           = "ALB"
+    origin = [{
+    }]
+    custom_origin_config = [{
+      http_port  = 80
+      https_port = 443
+      # origin_keepalive_timeout = 5
+      # origin_read_timeout      = 30
+      origin_protocol_policy = "match-viewer"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }]
+    default_cache_behavior = [{
+      target_origin_id         = "ALB"
+      viewer_protocol_policy   = "redirect-to-https"
+      min_ttl                  = 0
+      default_ttl              = 0
+      max_ttl                  = 0
+      allowed_methods          = ["GET", "HEAD"]
+      cached_methods           = ["GET", "HEAD"]
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3"
+      #   forwarded_values = [{
+      #     query_string = false
+      #     forward      = "none"
+      #     cookies = [{
+      #     }]
+      # }]
+    }]
+    viewer_certificate = [{
+      ssl_support_method       = "sni-only"
+      minimum_protocol_version = "TLSv1.2_2019"
+    }]
+    restrictions = [{
+      geo_restriction = [{
+        restriction_type = "whitelist"
+        locations        = ["IL"]
+      }]
+    }]
+
+  }
+}
+
+cloudfront_distribution_voting = {
+  cloudfront-voting = {
+    enabled             = true
+    is_ipv6_enabled     = true
+    default_root_object = "index.html"
+    aliases             = ["*.voting.co.il"]
+    origin_id           = "ALB"
+    origin = [{
+    }]
+    custom_origin_config = [{
+      http_port  = 80
+      https_port = 443
+      # origin_keepalive_timeout = 5
+      # origin_read_timeout      = 30
+      origin_protocol_policy = "match-viewer"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }]
+    default_cache_behavior = [{
+      target_origin_id         = "ALB"
+      viewer_protocol_policy   = "redirect-to-https"
+      min_ttl                  = 0
+      default_ttl              = 0
+      max_ttl                  = 0
+      allowed_methods          = ["GET", "HEAD"]
+      cached_methods           = ["GET", "HEAD"]
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3"
+      #   forwarded_values = [{
+      #     query_string = false
+      #     forward      = "none"
+      #     cookies = [{
+      #     }]
       # }]
     }]
     viewer_certificate = [{
@@ -443,6 +762,50 @@ cloudfront_distribution = {
 # # ------------------------
 wafv2_acl = {
   waf = {
+    scope         = "CLOUDFRONT"
+    country_codes = ["IL"]
+    default_action = [{
+    }]
+    rule = [{
+      name     = "AllowOnlyIsrael"
+      priority = 1
+      action = [{
+      }]
+      visibility_config = [{
+        cloudwatch_metrics_enabled = false
+        metric_name                = "web-acl"
+        sampled_requests_enabled   = false
+      }]
+    }]
+    visibility_config = [{
+      cloudwatch_metrics_enabled = false
+      metric_name                = "web-acl"
+      sampled_requests_enabled   = false
+    }]
+  },
+  waf-ihorse = {
+    scope         = "CLOUDFRONT"
+    country_codes = ["IL"]
+    default_action = [{
+    }]
+    rule = [{
+      name     = "AllowOnlyIsrael"
+      priority = 1
+      action = [{
+      }]
+      visibility_config = [{
+        cloudwatch_metrics_enabled = false
+        metric_name                = "web-acl"
+        sampled_requests_enabled   = false
+      }]
+    }]
+    visibility_config = [{
+      cloudwatch_metrics_enabled = false
+      metric_name                = "web-acl"
+      sampled_requests_enabled   = false
+    }]
+  },
+  waf-voting = {
     scope         = "CLOUDFRONT"
     country_codes = ["IL"]
     default_action = [{
