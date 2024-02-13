@@ -341,6 +341,11 @@ target_group = {
     port        = 2087
     protocol    = "HTTPS"
   }
+  tg-2083 = {
+    target_type = "instance"
+    port        = 2083
+    protocol    = "HTTPS"
+  }
 }
 
 target_group_ihorse = {

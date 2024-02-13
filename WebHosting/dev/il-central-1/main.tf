@@ -153,7 +153,7 @@ module "autoscaling_group" {
   max_size            = lookup(each.value, "max_size", null)
   min_size            = lookup(each.value, "min_size", null)
   vpc_zone_identifier = [module.subnet["private-subnet-1a"].id]
-  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_voting["voting-tg-whm"].arn]
+  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group["tg-2083"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_voting["voting-tg-whm"].arn]
   launch_template = [{
     id      = module.launch_template["cPanel"].id
     version = lookup(each.value, "version", null)
