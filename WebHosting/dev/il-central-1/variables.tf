@@ -131,6 +131,18 @@ variable "route53_record_cert_approval" {
   type = any
 }
 
+# variable "route53_record_zone_approval_voting" {
+#   type = any
+# }
+
+# variable "route53_record_cpanel_voting" {
+#   type = any
+# }
+
+# variable "route53_record_cert_approval_voting" {
+#   type = any
+# }
+
 # variable "route53_record_cert_approval_us_east_1" {
 #   type = any
 # }
@@ -175,6 +187,22 @@ variable "alb_listener_whm_ihorse" {
   type = any
 }
 
+variable "alb_listener_https_voting" {
+  type = any
+}
+
+variable "alb_listener_http_voting" {
+  type = any
+}
+
+variable "alb_listener_whm_voting" {
+  type = any
+}
+
+# variable "route53_zone_dev_voting" {
+#   type = any
+# }
+
 variable "route53_record_zone_approval_ihorse" {
   type = any
 }
@@ -182,6 +210,7 @@ variable "route53_record_zone_approval_ihorse" {
 variable "route53_record_cpanel_ihorse" {
   type = any
 }
+
 
 variable "route53_record_cert_approval_ihorse" {
   type = any
@@ -191,6 +220,22 @@ variable "route53_zone_dev_ihorse" {
   type = any
 }
 
+variable "dns_zone_prod_voting_name" {
+  type = any
+}
+
 variable "cloudfront_distribution_ihorse" {
+  type = any
+}
+
+variable "cloudfront_distribution_voting" {
+  type = any
+}
+
+variable "target_group_voting" {
+  type = any
+}
+
+variable "alb_voting" {
   type = any
 }

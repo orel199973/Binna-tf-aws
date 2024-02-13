@@ -73,7 +73,7 @@ module "security_group_cpanel" {
   vpc_id          = module.vpc["vpc"].id
   egress          = lookup(each.value, "egress", null)
   ingress         = lookup(each.value, "ingress", null)
-  security_groups = [module.security_group_alb["security-group-alb"].id, module.security_group_alb["security-group-alb-ihorse"].id]
+  security_groups = [module.security_group_alb["security-group-alb"].id, module.security_group_alb["security-group-alb-ihorse"].id, module.security_group_alb["security-group-alb-voting"].id]
 }
 
 module "security_group_alb" {
@@ -107,7 +107,7 @@ module "launch_template" {
   key_name = aws_key_pair.cPanel-key.key_name
   network_interfaces = [{
     subnet_id                   = module.subnet["private-subnet-1a"].id
-    security_groups             = [module.security_group_cpanel["security-group-cpanel"].id, module.security_group_alb["security-group-alb-ihorse"].id]
+    security_groups             = [module.security_group_cpanel["security-group-cpanel"].id, module.security_group_alb["security-group-alb-ihorse"].id, module.security_group_alb["security-group-alb-voting"].id]
     associate_public_ip_address = lookup(each.value, "associate_public_ip_address", null)
   }]
 }
@@ -135,6 +135,16 @@ module "target_group_ihorse" {
   target_type = lookup(each.value, "target_type", null)
 }
 
+module "target_group_voting" {
+  source      = "../../../modules/aws-lb-target-group"
+  for_each    = var.target_group_voting
+  name        = "${each.key}-${local.prefix}"
+  vpc_id      = module.vpc["vpc"].id
+  port        = lookup(each.value, "port", null)
+  protocol    = lookup(each.value, "protocol", null)
+  target_type = lookup(each.value, "target_type", null)
+}
+
 # Autoscaling Group
 # ------------------
 module "autoscaling_group" {
@@ -143,7 +153,7 @@ module "autoscaling_group" {
   max_size            = lookup(each.value, "max_size", null)
   min_size            = lookup(each.value, "min_size", null)
   vpc_zone_identifier = [module.subnet["private-subnet-1a"].id]
-  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn]
+  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_voting["voting-tg-whm"].arn]
   launch_template = [{
     id      = module.launch_template["cPanel"].id
     version = lookup(each.value, "version", null)
@@ -214,8 +224,8 @@ module "private_association_route_table" {
 # # Certificate Manager
 # # --------------------
 module "acm_certificate_dev_israel" {
-  source      = "../../../modules/aws-acm-certificate"
-  domain_name = var.dns_zone_dev_name
+  source            = "../../../modules/aws-acm-certificate"
+  domain_name       = var.dns_zone_dev_name
   validation_method = "DNS"
   providers = {
     aws = aws.default
@@ -223,8 +233,8 @@ module "acm_certificate_dev_israel" {
 }
 
 module "acm_certificate_dev_us_east1" {
-  source      = "../../../modules/aws-acm-certificate"
-  domain_name = var.dns_zone_dev_name
+  source            = "../../../modules/aws-acm-certificate"
+  domain_name       = var.dns_zone_dev_name
   validation_method = "DNS"
   providers = {
     aws = aws.us_east_1
@@ -232,8 +242,8 @@ module "acm_certificate_dev_us_east1" {
 }
 
 module "acm_certificate_dev_ihorse_israel" {
-  source      = "../../../modules/aws-acm-certificate"
-  domain_name = var.dns_zone_dev_ihorse_name
+  source            = "../../../modules/aws-acm-certificate"
+  domain_name       = var.dns_zone_dev_ihorse_name
   validation_method = "DNS"
   providers = {
     aws = aws.default
@@ -241,8 +251,26 @@ module "acm_certificate_dev_ihorse_israel" {
 }
 
 module "acm_certificate_dev_ihorse_us_east1" {
-  source      = "../../../modules/aws-acm-certificate"
-  domain_name = var.dns_zone_dev_ihorse_name
+  source            = "../../../modules/aws-acm-certificate"
+  domain_name       = var.dns_zone_dev_ihorse_name
+  validation_method = "DNS"
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+module "acm_certificate_voting_israel" {
+  source            = "../../../modules/aws-acm-certificate"
+  domain_name       = var.dns_zone_prod_voting_name
+  validation_method = "DNS"
+  providers = {
+    aws = aws.default
+  }
+}
+
+module "acm_certificate_voting_us_east1" {
+  source            = "../../../modules/aws-acm-certificate"
+  domain_name       = var.dns_zone_prod_voting_name
   validation_method = "DNS"
   providers = {
     aws = aws.us_east_1
@@ -276,6 +304,17 @@ module "alb_ihorse" {
   for_each                         = var.alb_ihorse
   name                             = "${each.key}-${local.prefix}"
   security_groups                  = [module.security_group_alb["security-group-alb-ihorse"].id]
+  subnets                          = [module.subnet["public-subnet-1a"].id, module.subnet["public-subnet-1b"].id]
+  enable_cross_zone_load_balancing = lookup(each.value, "enable_cross_zone_load_balancing", null)
+  load_balancer_type               = lookup(each.value, "load_balancer_type", null)
+  ip_address_type                  = lookup(each.value, "ip_address_type", null)
+}
+
+module "alb_voting" {
+  source                           = "../../../modules/aws-lb"
+  for_each                         = var.alb_voting
+  name                             = "${each.key}-${local.prefix}"
+  security_groups                  = [module.security_group_alb["security-group-alb-voting"].id]
   subnets                          = [module.subnet["public-subnet-1a"].id, module.subnet["public-subnet-1b"].id]
   enable_cross_zone_load_balancing = lookup(each.value, "enable_cross_zone_load_balancing", null)
   load_balancer_type               = lookup(each.value, "load_balancer_type", null)
@@ -377,6 +416,52 @@ module "alb_listener_whm_ihorse" {
   depends_on = [module.target_group_ihorse, module.route53_record_cert_approval_ihorse]
 }
 
+# ALB Listener Voting
+# ---------------------------
+module "alb_listener_http_voting" {
+  source            = "../../../modules/aws-lb-listener"
+  for_each          = var.alb_listener_http_voting
+  name              = each.key
+  load_balancer_arn = module.alb_voting["alb-voting"].arn
+  protocol          = lookup(each.value, "protocol", null)
+  port              = lookup(each.value, "port", null)
+  default_action = [{
+    target_group_arn = module.target_group_voting["voting-tg-http"].arn
+    type             = lookup(each.value, "type", null)
+  }]
+}
+
+module "alb_listener_https_voting" {
+  source            = "../../../modules/aws-lb-listener"
+  for_each          = var.alb_listener_https_voting
+  name              = each.key
+  load_balancer_arn = module.alb_voting["alb-voting"].arn
+  protocol          = lookup(each.value, "protocol", null)
+  port              = lookup(each.value, "port", null)
+  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+  certificate_arn = module.acm_certificate_voting_israel.arn
+  default_action = [{
+    target_group_arn = module.target_group_voting["voting-tg-http"].arn
+    type             = lookup(each.value, "type", null)
+  }]
+  depends_on = [module.target_group_voting, module.route53_record_cert_approval]
+}
+
+module "alb_listener_whm_voting" {
+  source            = "../../../modules/aws-lb-listener"
+  for_each          = var.alb_listener_whm_voting
+  name              = each.key
+  load_balancer_arn = module.alb_voting["alb-voting"].arn
+  protocol          = lookup(each.value, "protocol", null)
+  port              = lookup(each.value, "port", null)
+  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+  certificate_arn = module.acm_certificate_voting_israel.arn
+  default_action = [{
+    target_group_arn = module.target_group_voting["voting-tg-whm"].arn
+    type             = lookup(each.value, "type", null)
+  }]
+  depends_on = [module.target_group_voting, module.route53_record_cert_approval]
+}
 
 # S3 Bucket
 # -----------------
@@ -452,7 +537,7 @@ module "route53_record_zone_approval" {
   source   = "../../../modules/route53-record"
   for_each = var.route53_record_zone_approval
   name     = lookup(each.value, "name", null)
-  zone_id         = module.route53_zone["vitiligo-stop"].zone_id
+  zone_id  = module.route53_zone["vitiligo-stop"].zone_id
   # zone_id         = data.aws_route53_zone.route53_zone_prod.zone_id
   type            = lookup(each.value, "type", null)
   ttl             = lookup(each.value, "ttl", null)
@@ -472,7 +557,7 @@ module "route53_record_cpanel" {
   name     = lookup(each.value, "name", null)
   zone_id  = module.route53_zone_dev["vitiligo-stop"].zone_id
   # zone_id = data.aws_route53_zone.route53_zone_prod.zone_id
-  type     = lookup(each.value, "type", null)
+  type = lookup(each.value, "type", null)
   alias = [{
     name                   = module.cloudfront_distribution["cloudfront"].domain_name
     zone_id                = module.cloudfront_distribution["cloudfront"].hosted_zone_id
@@ -490,13 +575,13 @@ locals {
 }
 
 module "route53_record_cert_approval" {
-  source   = "../../../modules/route53-record"
-  for_each = var.route53_record_cert_approval
-  name     = local.validation_options[0].name
-  records  = [local.validation_options[0].value]
-  zone_id  = module.route53_zone_dev["vitiligo-stop"].zone_id
-  type     = lookup(each.value, "type", null)
-  ttl      = lookup(each.value, "ttl", null)
+  source     = "../../../modules/route53-record"
+  for_each   = var.route53_record_cert_approval
+  name       = local.validation_options[0].name
+  records    = [local.validation_options[0].value]
+  zone_id    = module.route53_zone_dev["vitiligo-stop"].zone_id
+  type       = lookup(each.value, "type", null)
+  ttl        = lookup(each.value, "ttl", null)
   depends_on = [module.route53_zone_dev]
 }
 
@@ -531,7 +616,7 @@ module "route53_record_cpanel_ihorse" {
   name     = lookup(each.value, "name", null)
   zone_id  = module.route53_zone_dev_ihorse["ihorse"].zone_id
   # zone_id = data.aws_route53_zone.route53_zone_prod.zone_id
-  type     = lookup(each.value, "type", null)
+  type = lookup(each.value, "type", null)
   alias = [{
     name                   = module.cloudfront_distribution_ihorse["cloudfront-ihorse"].domain_name
     zone_id                = module.cloudfront_distribution_ihorse["cloudfront-ihorse"].hosted_zone_id
@@ -549,13 +634,13 @@ locals {
 }
 
 module "route53_record_cert_approval_ihorse" {
-  source   = "../../../modules/route53-record"
-  for_each = var.route53_record_cert_approval_ihorse
-  name     = local.validation_optionss[0].name
-  records  = [local.validation_optionss[0].value]
-  zone_id  = module.route53_zone_dev_ihorse["ihorse"].zone_id
-  type     = lookup(each.value, "type", null)
-  ttl      = lookup(each.value, "ttl", null)
+  source     = "../../../modules/route53-record"
+  for_each   = var.route53_record_cert_approval_ihorse
+  name       = local.validation_optionss[0].name
+  records    = [local.validation_optionss[0].value]
+  zone_id    = module.route53_zone_dev_ihorse["ihorse"].zone_id
+  type       = lookup(each.value, "type", null)
+  ttl        = lookup(each.value, "ttl", null)
   depends_on = [module.route53_zone_dev_ihorse]
 }
 
@@ -583,7 +668,7 @@ module "cloudfront_distribution" {
   }]
   viewer_certificate = [{
     # cloudfront_default_certificate = lookup(each.value, "cloudfront_default_certificate", true)
-    ssl_support_method = lookup(each.value, "ssl_support_method", "sni-only")
+    ssl_support_method  = lookup(each.value, "ssl_support_method", "sni-only")
     acm_certificate_arn = module.acm_certificate_dev_us_east1.arn
     # acm_certificate_arn = data.aws_acm_certificate.binna_dev_us_east1.arn
   }]
@@ -614,10 +699,40 @@ module "cloudfront_distribution_ihorse" {
     origin_id   = lookup(each.value, "origin_id", null)
   }]
   viewer_certificate = [{
-    ssl_support_method = lookup(each.value, "ssl_support_method", "sni-only")
+    ssl_support_method  = lookup(each.value, "ssl_support_method", "sni-only")
     acm_certificate_arn = module.acm_certificate_dev_ihorse_us_east1.arn
   }]
   depends_on = [module.alb_ihorse, module.acm_certificate_dev_ihorse_us_east1]
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+module "cloudfront_distribution_voting" {
+  source                 = "../../../modules/cloudfront-distribution"
+  for_each               = var.cloudfront_distribution_voting
+  name                   = "${each.key}-${local.prefix}"
+  enabled                = lookup(each.value, "enabled", null)
+  price_class            = lookup(each.value, "price_class", null)
+  is_ipv6_enabled        = lookup(each.value, "is_ipv6_enabled", null)
+  default_root_object    = lookup(each.value, "default_root_object", null)
+  geo_restriction        = lookup(each.value, "geo_restriction", {})
+  default_cache_behavior = lookup(each.value, "default_cache_behavior", {})
+  forwarded_values       = lookup(each.value, "forwarded_values", {})
+  custom_origin_config   = lookup(each.value, "custom_origin_config", {})
+  restrictions           = lookup(each.value, "restrictions", {})
+  web_acl_id             = module.wafv2_acl["waf-voting"].arn
+  target_origin_id       = lookup(each.value, "target_origin_id", null)
+  aliases                = lookup(each.value, "aliases", null)
+  origin = [{
+    domain_name = module.alb_voting["alb-voting"].dns_name
+    origin_id   = lookup(each.value, "origin_id", null)
+  }]
+  viewer_certificate = [{
+    ssl_support_method  = lookup(each.value, "ssl_support_method", "sni-only")
+    acm_certificate_arn = module.acm_certificate_voting_us_east1.arn
+  }]
+  depends_on = [module.alb_voting, module.acm_certificate_voting_us_east1]
   providers = {
     aws = aws.us_east_1
   }
@@ -640,7 +755,6 @@ module "wafv2_acl" {
     aws = aws.us_east_1
   }
 }
-
 
 
 # # WAF IP Set
