@@ -280,6 +280,26 @@ security_group_alb = {
       protocol    = "-1"
       cidr_blocks = ["0.0.0.0/0"]
     }]
+  },
+    security-group-alb-binaa-aws = {
+    ingress = [{
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      },
+      {
+        from_port   = 2087
+        to_port     = 2087
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }]
+    egress = [{
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }]
   }
 }
 
@@ -368,6 +388,20 @@ target_group_voting = {
     protocol    = "HTTPS"
   }
 }
+
+# target_group_binaa_aws = {
+#   binaa-aws-tg-http = {
+#     target_type = "instance"
+#     port        = 80
+#     protocol    = "HTTP"
+#   }
+#   binaa-aws-tg-whm = {
+#     target_type = "instance"
+#     port        = 2087
+#     protocol    = "HTTPS"
+#   }
+# }
+
 # # Certificate Manager
 # # --------------------
 acm_domain = "*.dev.vitiligo-stop.com"
