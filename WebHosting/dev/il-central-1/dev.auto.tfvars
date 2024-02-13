@@ -281,15 +281,21 @@ security_group_alb = {
       cidr_blocks = ["0.0.0.0/0"]
     }]
   },
-    security-group-alb-binaa-aws = {
+  security-group-alb-binaa-aws = {
     ingress = [{
         from_port   = 443
         to_port     = 443
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
+    },
+    {
         from_port   = 2087
+        to_port     = 2087
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+        from_port   = 2083
         to_port     = 2087
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
@@ -394,18 +400,23 @@ target_group_voting = {
   }
 }
 
-# target_group_binaa_aws = {
-#   binaa-aws-tg-http = {
-#     target_type = "instance"
-#     port        = 80
-#     protocol    = "HTTP"
-#   }
-#   binaa-aws-tg-whm = {
-#     target_type = "instance"
-#     port        = 2087
-#     protocol    = "HTTPS"
-#   }
-# }
+target_group_binaa_aws = {
+  binaa-aws-tg-http = {
+    target_type = "instance"
+    port        = 80
+    protocol    = "HTTP"
+  }
+  binaa-aws-tg-whm = {
+    target_type = "instance"
+    port        = 2087
+    protocol    = "HTTPS"
+  }
+  binaa-aws-tg-2083 = {
+    target_type = "instance"
+    port        = 2083
+    protocol    = "HTTPS"
+  }
+}
 
 # # Certificate Manager
 # # --------------------
@@ -419,7 +430,6 @@ alb = {
     internal                   = false
     load_balancer_type         = "application"
     enable_deletion_protection = false
-
   }
 }
 
@@ -428,7 +438,6 @@ alb_ihorse = {
     internal                   = false
     load_balancer_type         = "application"
     enable_deletion_protection = false
-
   }
 }
 
@@ -437,9 +446,17 @@ alb_voting = {
     internal                   = false
     load_balancer_type         = "application"
     enable_deletion_protection = false
-
   }
 }
+
+alb_binna_aws_whm = {
+  alb-binna-aws-whm = {
+    internal                   = false
+    load_balancer_type         = "application"
+    enable_deletion_protection = false
+  }
+}
+
 # ALB Listener
 # -----------------
 alb_listener_http = {
@@ -533,6 +550,42 @@ alb_listener_whm_voting = {
   }
 }
 
+# ALB Listener Binna AWS
+# ------------------------
+# alb_listener_http_binna_aws = {
+#   listener-http = {
+#     protocol = "HTTP"
+#     port     = "80"
+#     type     = "forward"
+#   }
+# }
+
+alb_listener_https_binna_aws= {
+  listener-https = {
+    protocol   = "HTTPS"
+    port       = "443"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+alb_listener_whm_binna_aws = {
+  listener-whm = {
+    protocol   = "HTTPS"
+    port       = "2087"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
+alb_listener_2083_binna_aws = {
+  listener-2083 = {
+    protocol   = "HTTPS"
+    port       = "2083"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
 
 # S3 Bucket
 # -----------------
@@ -588,6 +641,9 @@ dns_zone_dev_name         = "*.dev.vitiligo-stop.com"
 dns_zone_prod_name_ihorse = "ihorse.co.il"
 dns_zone_dev_ihorse_name  = "*.dev.ihorse.co.il"
 dns_zone_prod_voting_name = "*.voting.co.il"
+dns_zone_prod_name_binaa_aws = "binaa-aws.co.il"
+dns_zone_prod_acm_name_binaa_aws = "*.binaa-aws.co.il"
+
 route53_zone = {
   vitiligo-stop = {
   }
@@ -654,6 +710,24 @@ route53_record_cpanel_ihorse = {
   }
 }
 route53_record_cert_approval_ihorse = {
+  cert-vitiligo-stop = {
+    type = "CNAME"
+    ttl  = 60
+  }
+}
+
+# # Route53 Record Binaa AWS
+# # ----------------------------
+route53_record_whm_binaa_aws = {
+  cpanel-a = {
+    name = "whm.binaa-aws.co.il"
+    type = "A"
+    alias = [{
+      evaluate_target_health = true
+    }]
+  }
+}
+route53_record_cert_approval_binaa_aws = {
   cert-vitiligo-stop = {
     type = "CNAME"
     ttl  = 60
