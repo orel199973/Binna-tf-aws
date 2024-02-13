@@ -239,3 +239,7 @@ variable "target_group_voting" {
 variable "alb_voting" {
   type = any
 }
+
+variable "alb_listener_2083" {
+  type = any
+}

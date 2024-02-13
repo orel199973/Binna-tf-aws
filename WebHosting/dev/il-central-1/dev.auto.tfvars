@@ -434,6 +434,15 @@ alb_listener_whm = {
   }
 }
 
+alb_listener_2083 = {
+  listener-2083 = {
+    protocol   = "HTTPS"
+    port       = "2083"
+    ssl_policy = "ELBSecurityPolicy-2016-08"
+    type       = "forward"
+  }
+}
+
 # ALB Listener Ihorse
 # ----------------------
 alb_listener_http_ihorse = {

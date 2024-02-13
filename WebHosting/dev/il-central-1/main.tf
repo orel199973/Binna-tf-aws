@@ -369,6 +369,22 @@ module "alb_listener_whm" {
   depends_on = [module.target_group, module.route53_record_cert_approval]
 }
 
+module "alb_listener_2083" {
+  source            = "../../../modules/aws-lb-listener"
+  for_each          = var.alb_listener_2083
+  name              = each.key
+  load_balancer_arn = module.alb["alb"].arn
+  protocol          = lookup(each.value, "protocol", null)
+  port              = lookup(each.value, "port", null)
+  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+  certificate_arn = module.acm_certificate_dev_israel.arn
+  default_action = [{
+    target_group_arn = module.target_group["tg-2083"].arn
+    type             = lookup(each.value, "type", null)
+  }]
+  depends_on = [module.target_group, module.route53_record_cert_approval]
+}
+
 # ALB Listener Ihorse
 # ---------------------------
 module "alb_listener_http_ihorse" {
