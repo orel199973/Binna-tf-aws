@@ -158,32 +158,33 @@ security_group_alb = {
         to_port     = 443
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
-        from_port   = 2082
-        to_port     = 2082
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
       }
-      ,
-      {
-        from_port   = 2083
-        to_port     = 2083
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
-        from_port   = 2086
-        to_port     = 2086
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
-        from_port   = 2087
-        to_port     = 2087
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }]
+    #   {
+    #     from_port   = 2082
+    #     to_port     = 2082
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    #   }
+    #   ,
+    #   {
+    #     from_port   = 2083
+    #     to_port     = 2083
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    #   },
+    #   {
+    #     from_port   = 2086
+    #     to_port     = 2086
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    #   },
+    #   {
+    #     from_port   = 2087
+    #     to_port     = 2087
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    # }
+    ]
     egress = [{
       from_port   = 0
       to_port     = 0
@@ -248,32 +249,33 @@ security_group_alb = {
         to_port     = 443
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
-        from_port   = 2082
-        to_port     = 2082
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
       }
-      ,
-      {
-        from_port   = 2083
-        to_port     = 2083
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
-        from_port   = 2086
-        to_port     = 2086
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-      },
-      {
-        from_port   = 2087
-        to_port     = 2087
-        protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"]
-    }]
+    #   {
+    #     from_port   = 2082
+    #     to_port     = 2082
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    #   }
+    #   ,
+    #   {
+    #     from_port   = 2083
+    #     to_port     = 2083
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    #   },
+    #   {
+    #     from_port   = 2086
+    #     to_port     = 2086
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    #   },
+    #   {
+    #     from_port   = 2087
+    #     to_port     = 2087
+    #     protocol    = "tcp"
+    #     cidr_blocks = ["0.0.0.0/0"]
+    # }
+    ]
     egress = [{
       from_port   = 0
       to_port     = 0
@@ -362,11 +364,11 @@ target_group = {
     port        = 80
     protocol    = "HTTP"
   }
-  tg-whm = {
-    target_type = "instance"
-    port        = 2087
-    protocol    = "HTTPS"
-  }
+  # tg-whm = {
+  #   target_type = "instance"
+  #   port        = 2087
+  #   protocol    = "HTTPS"
+  # }
   tg-2083 = {
     target_type = "instance"
     port        = 2083
@@ -380,11 +382,11 @@ target_group_ihorse = {
     port        = 80
     protocol    = "HTTP"
   }
-  ihorse-tg-whm = {
-    target_type = "instance"
-    port        = 2087
-    protocol    = "HTTPS"
-  }
+  # ihorse-tg-whm = {
+  #   target_type = "instance"
+  #   port        = 2087
+  #   protocol    = "HTTPS"
+  # }
 }
 
 target_group_voting = {
@@ -393,11 +395,11 @@ target_group_voting = {
     port        = 80
     protocol    = "HTTP"
   }
-  voting-tg-whm = {
-    target_type = "instance"
-    port        = 2087
-    protocol    = "HTTPS"
-  }
+  # voting-tg-whm = {
+  #   target_type = "instance"
+  #   port        = 2087
+  #   protocol    = "HTTPS"
+  # }
 }
 
 target_group_binaa_aws = {
@@ -476,23 +478,23 @@ alb_listener_https = {
   }
 }
 
-alb_listener_whm = {
-  listener-whm = {
-    protocol   = "HTTPS"
-    port       = "2087"
-    ssl_policy = "ELBSecurityPolicy-2016-08"
-    type       = "forward"
-  }
-}
+# alb_listener_whm = {
+#   listener-whm = {
+#     protocol   = "HTTPS"
+#     port       = "2087"
+#     ssl_policy = "ELBSecurityPolicy-2016-08"
+#     type       = "forward"
+#   }
+# }
 
-alb_listener_2083 = {
-  listener-2083 = {
-    protocol   = "HTTPS"
-    port       = "2083"
-    ssl_policy = "ELBSecurityPolicy-2016-08"
-    type       = "forward"
-  }
-}
+# alb_listener_2083 = {
+#   listener-2083 = {
+#     protocol   = "HTTPS"
+#     port       = "2083"
+#     ssl_policy = "ELBSecurityPolicy-2016-08"
+#     type       = "forward"
+#   }
+# }
 
 # ALB Listener Ihorse
 # ----------------------
@@ -513,14 +515,14 @@ alb_listener_https_ihorse = {
   }
 }
 
-alb_listener_whm_ihorse = {
-  listener-whm = {
-    protocol   = "HTTPS"
-    port       = "2087"
-    ssl_policy = "ELBSecurityPolicy-2016-08"
-    type       = "forward"
-  }
-}
+# alb_listener_whm_ihorse = {
+#   listener-whm = {
+#     protocol   = "HTTPS"
+#     port       = "2087"
+#     ssl_policy = "ELBSecurityPolicy-2016-08"
+#     type       = "forward"
+#   }
+# }
 
 # ALB Listener Voting
 # ----------------------
@@ -541,14 +543,14 @@ alb_listener_https_voting = {
   }
 }
 
-alb_listener_whm_voting = {
-  listener-whm = {
-    protocol   = "HTTPS"
-    port       = "2087"
-    ssl_policy = "ELBSecurityPolicy-2016-08"
-    type       = "forward"
-  }
-}
+# alb_listener_whm_voting = {
+#   listener-whm = {
+#     protocol   = "HTTPS"
+#     port       = "2087"
+#     ssl_policy = "ELBSecurityPolicy-2016-08"
+#     type       = "forward"
+#   }
+# }
 
 # ALB Listener Binna AWS
 # ------------------------

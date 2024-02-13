@@ -87,9 +87,9 @@ variable "alb_listener_http" {
   type = any
 }
 
-variable "alb_listener_whm" {
-  type = any
-}
+# variable "alb_listener_whm" {
+#   type = any
+# }
 
 variable "s3" {
   type = any
@@ -183,9 +183,9 @@ variable "alb_listener_http_ihorse" {
   type = any
 }
 
-variable "alb_listener_whm_ihorse" {
-  type = any
-}
+# variable "alb_listener_whm_ihorse" {
+#   type = any
+# }
 
 variable "alb_listener_https_voting" {
   type = any
@@ -195,9 +195,9 @@ variable "alb_listener_http_voting" {
   type = any
 }
 
-variable "alb_listener_whm_voting" {
-  type = any
-}
+# variable "alb_listener_whm_voting" {
+#   type = any
+# }
 
 # variable "route53_zone_dev_voting" {
 #   type = any
@@ -248,9 +248,9 @@ variable "alb_binna_aws_whm" {
   type = any
 }
 
-variable "alb_listener_2083" {
-  type = any
-}
+# variable "alb_listener_2083" {
+#   type = any
+# }
 
 # variable "alb_listener_http_binna_aws" {
 #   type = any

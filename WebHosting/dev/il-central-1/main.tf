@@ -15,8 +15,6 @@ module "vpc" {
   for_each   = var.vpc
   name       = "${each.key}-${local.prefix}"
   cidr_block = each.value.cidr_block
-  # enable_dns_support = lookup(each.value, "enable_dns_support", null)
-  # enable_dns_hostnames = lookup(each.value, "enable_dns_hostnames", null)
 }
 
 
@@ -103,7 +101,6 @@ module "launch_template" {
   image_id               = lookup(each.value, "image_id", null)
   user_data              = lookup(each.value, "user_data", null)
   instance_type          = lookup(each.value, "instance_type", null)
-  # vpc_security_group_ids = [module.security_group_cpanel["security-group-cpanel"].id]
   key_name = aws_key_pair.cPanel-key.key_name
   network_interfaces = [{
     subnet_id                   = module.subnet["private-subnet-1a"].id
@@ -163,7 +160,7 @@ module "autoscaling_group" {
   max_size            = lookup(each.value, "max_size", null)
   min_size            = lookup(each.value, "min_size", null)
   vpc_zone_identifier = [module.subnet["private-subnet-1a"].id]
-  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group["tg-whm"].arn, module.target_group["tg-2083"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_ihorse["ihorse-tg-whm"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_voting["voting-tg-whm"].arn, module.target_group_binaa_aws["binaa-aws-tg-http"].arn, module.target_group_binaa_aws["binaa-aws-tg-whm"].arn, module.target_group_binaa_aws["binaa-aws-tg-2083"].arn]
+  target_group_arns   = [module.target_group["tg-http"].arn, module.target_group_ihorse["ihorse-tg-http"].arn, module.target_group_voting["voting-tg-http"].arn, module.target_group_binaa_aws["binaa-aws-tg-http"].arn, module.target_group_binaa_aws["binaa-aws-tg-whm"].arn, module.target_group_binaa_aws["binaa-aws-tg-2083"].arn]
   launch_template = [{
     id      = module.launch_template["cPanel"].id
     version = lookup(each.value, "version", null)
@@ -381,37 +378,37 @@ module "alb_listener_https" {
   depends_on = [module.target_group, module.route53_record_cert_approval]
 }
 
-module "alb_listener_whm" {
-  source            = "../../../modules/aws-lb-listener"
-  for_each          = var.alb_listener_whm
-  name              = each.key
-  load_balancer_arn = module.alb["alb"].arn
-  protocol          = lookup(each.value, "protocol", null)
-  port              = lookup(each.value, "port", null)
-  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
-  certificate_arn = module.acm_certificate_dev_israel.arn
-  default_action = [{
-    target_group_arn = module.target_group["tg-whm"].arn
-    type             = lookup(each.value, "type", null)
-  }]
-  depends_on = [module.target_group, module.route53_record_cert_approval]
-}
+# module "alb_listener_whm" {
+#   source            = "../../../modules/aws-lb-listener"
+#   for_each          = var.alb_listener_whm
+#   name              = each.key
+#   load_balancer_arn = module.alb["alb"].arn
+#   protocol          = lookup(each.value, "protocol", null)
+#   port              = lookup(each.value, "port", null)
+#   # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+#   certificate_arn = module.acm_certificate_dev_israel.arn
+#   default_action = [{
+#     target_group_arn = module.target_group["tg-whm"].arn
+#     type             = lookup(each.value, "type", null)
+#   }]
+#   depends_on = [module.target_group, module.route53_record_cert_approval]
+# }
 
-module "alb_listener_2083" {
-  source            = "../../../modules/aws-lb-listener"
-  for_each          = var.alb_listener_2083
-  name              = each.key
-  load_balancer_arn = module.alb["alb"].arn
-  protocol          = lookup(each.value, "protocol", null)
-  port              = lookup(each.value, "port", null)
-  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
-  certificate_arn = module.acm_certificate_dev_israel.arn
-  default_action = [{
-    target_group_arn = module.target_group["tg-2083"].arn
-    type             = lookup(each.value, "type", null)
-  }]
-  depends_on = [module.target_group, module.route53_record_cert_approval]
-}
+# module "alb_listener_2083" {
+#   source            = "../../../modules/aws-lb-listener"
+#   for_each          = var.alb_listener_2083
+#   name              = each.key
+#   load_balancer_arn = module.alb["alb"].arn
+#   protocol          = lookup(each.value, "protocol", null)
+#   port              = lookup(each.value, "port", null)
+#   # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+#   certificate_arn = module.acm_certificate_dev_israel.arn
+#   default_action = [{
+#     target_group_arn = module.target_group["tg-2083"].arn
+#     type             = lookup(each.value, "type", null)
+#   }]
+#   depends_on = [module.target_group, module.route53_record_cert_approval]
+# }
 
 # ALB Listener Ihorse
 # ---------------------------
@@ -444,21 +441,21 @@ module "alb_listener_https_ihorse" {
   depends_on = [module.target_group_ihorse, module.route53_record_cert_approval_ihorse]
 }
 
-module "alb_listener_whm_ihorse" {
-  source            = "../../../modules/aws-lb-listener"
-  for_each          = var.alb_listener_whm_ihorse
-  name              = each.key
-  load_balancer_arn = module.alb_ihorse["alb-ihorse"].arn
-  protocol          = lookup(each.value, "protocol", null)
-  port              = lookup(each.value, "port", null)
-  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
-  certificate_arn = module.acm_certificate_dev_ihorse_israel.arn
-  default_action = [{
-    target_group_arn = module.target_group_ihorse["ihorse-tg-whm"].arn
-    type             = lookup(each.value, "type", null)
-  }]
-  depends_on = [module.target_group_ihorse, module.route53_record_cert_approval_ihorse]
-}
+# module "alb_listener_whm_ihorse" {
+#   source            = "../../../modules/aws-lb-listener"
+#   for_each          = var.alb_listener_whm_ihorse
+#   name              = each.key
+#   load_balancer_arn = module.alb_ihorse["alb-ihorse"].arn
+#   protocol          = lookup(each.value, "protocol", null)
+#   port              = lookup(each.value, "port", null)
+#   # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+#   certificate_arn = module.acm_certificate_dev_ihorse_israel.arn
+#   default_action = [{
+#     target_group_arn = module.target_group_ihorse["ihorse-tg-whm"].arn
+#     type             = lookup(each.value, "type", null)
+#   }]
+#   depends_on = [module.target_group_ihorse, module.route53_record_cert_approval_ihorse]
+# }
 
 # ALB Listener Voting
 # ---------------------------
@@ -491,21 +488,21 @@ module "alb_listener_https_voting" {
   depends_on = [module.target_group_voting, module.route53_record_cert_approval]
 }
 
-module "alb_listener_whm_voting" {
-  source            = "../../../modules/aws-lb-listener"
-  for_each          = var.alb_listener_whm_voting
-  name              = each.key
-  load_balancer_arn = module.alb_voting["alb-voting"].arn
-  protocol          = lookup(each.value, "protocol", null)
-  port              = lookup(each.value, "port", null)
-  # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
-  certificate_arn = module.acm_certificate_voting_israel.arn
-  default_action = [{
-    target_group_arn = module.target_group_voting["voting-tg-whm"].arn
-    type             = lookup(each.value, "type", null)
-  }]
-  depends_on = [module.target_group_voting, module.route53_record_cert_approval]
-}
+# module "alb_listener_whm_voting" {
+#   source            = "../../../modules/aws-lb-listener"
+#   for_each          = var.alb_listener_whm_voting
+#   name              = each.key
+#   load_balancer_arn = module.alb_voting["alb-voting"].arn
+#   protocol          = lookup(each.value, "protocol", null)
+#   port              = lookup(each.value, "port", null)
+#   # certificate_arn   = data.aws_acm_certificate.vitiligo_stop_dev_israel.arn
+#   certificate_arn = module.acm_certificate_voting_israel.arn
+#   default_action = [{
+#     target_group_arn = module.target_group_voting["voting-tg-whm"].arn
+#     type             = lookup(each.value, "type", null)
+#   }]
+#   depends_on = [module.target_group_voting, module.route53_record_cert_approval]
+# }
 
 # # ALB Listener Binaa AWS
 # # ------------------------
